@@ -5,74 +5,67 @@ object Main {
 
 
   def fibonacci(n: Int): Either[String, Int]  = {
-    if(n < 0) {
-      return Left("n must be non-negative")
-    }
+    if(n < 0) Left("n must be non-negative")
+
     @tailrec
     def tailFib(n: Int, prev: Int, cur: Int): Int = {
-      if (n > 0) {
-        tailFib(n - 1, prev = prev + cur, cur = prev)
-      } else {
-        cur
-      }
-    }
+      if (n > 0) tailFib(n - 1, prev = prev + cur, cur = prev)
+      else cur
+
     Right(tailFib(n, prev = 1, cur = 0))
   }
 
   def atkinSieve(n: Int): Either[String, List[Int]] = {
-    if(n < 2){
-     return  Left("n must be not less then 2")
-    }
+    if(n < 2) return  Left("n must be not less then 2")
 
     val sqrt = Math.sqrt(n)
-    val sieve = mutable.HashMap[Int, Int]()
-    for(p <- 1 to n) {
-      sieve.put(p, 0)
-    }
+    val squareX = List.tabulate(sqrt.toInt)(x => x*x)
+    val squareY = List.tabulate(sqrt.toInt)(y => y*y)
+    val listOne =  for {
+      x <- squareX
+      y <- squareY
+    } yield  4*x + y
+    val numType1 =  listOne.filter(x => (x <= n && (x%12 == 1 || x%12 == 5)))
 
-    for( x <- 1 to sqrt.toInt) {
-      for(y <- 1 to sqrt.toInt){
-        val x2 = x * x
-        val y2 = y * y
-        val k = 4 * x2 + y2
-        if (k <= n && (k%12 == 1 || k%12 == 5)){
-          val flag = sieve(k)
-          sieve.update(k, (flag + 1)%2)
-        }
-        val k1 = k - x2
-        if ( k1 <= n && k1%12 == 7){
-          val flag = sieve(k1)
-          sieve.update(k1, (flag + 1)%2)
-        }
-        val k2 = k1 - 2 * y2
-        if (x > y && k2 <= n && k2%12 == 11){
-          val flag = sieve(k2)
-          sieve.update(k2, (flag + 1)%2)
-        }
-      }
-    }
+    val listTwo =  for {
+      x <- squareX
+      y <- squareY
 
-    for(i <- 5 to sqrt.toInt by 2){
-      if(sieve(i) %2 == 0) {
-       val sqr = i * i
-       for(j <- sqr to n by sqr){
-         sieve.update(j, 0)
-       }
-      }
-    }
-    val tmpRes = sieve.keySet.filter(sieve(_) %2 == 1)
+    } yield  3*x + y
+    val numType2 =  listTwo.filter(x => (x <= n && x%12 == 7))
+
+    val listThree =  for {
+      x <- squareX
+      y <- squareY
+      if x > y
+    } yield  3*x - y
+    val numType3 = listThree.filter(x => (x <= n && x%12 == 11))
+
+    val numbers = numType1 ++ numType2 ++ numType3
+    numbers.filter(x => numbers.count(_ == x)%2 ==1)
+
+    val resT = numbers.distinct
+    val nums = List.tabulate(sqrt.toInt/2 + 2)(x => 2*x + 1).filter(_ >=5)
+    val set = mutable.Set[Int]()
+    for{
+      x <- resT
+      num <- nums
+      if (x%(num) == 0)
+    } set.add(x)
+    val res = resT.filter(!set.contains(_))
 
     val result = n match {
-      case 2 =>  2::tmpRes.toList
-      case _ => 2::3::tmpRes.toList
+      case 2 =>  2::res.toList
+      case _ => 2::3::res.toList
     }
-    Right(result.sorted)
+    Right(result.sorted.tail)
   }
+
 
 
   def main(args: Array[String]): Unit = {
 
-    println(fibonacci(10))
-    println(atkinSieve(20))
+    print(atkinSieve(100))
+
   }
 }
