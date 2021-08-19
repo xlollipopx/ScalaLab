@@ -1,0 +1,11 @@
+[debug] > Exec(scalac Application.scala, None, None)
+[error] Expected ID character
+[error] Not a valid command: scalac (similar: alias)
+[error] Expected project ID
+[error] Expected configuration
+[error] Expected ':'
+[error] Expected key
+[error] Not a valid key: scalac (similar: scalaSource, scalaHome, scalaInstance)
+[error] scalac Application.scala
+[error]       ^
+[debug] > Exec(idea-shell, None, None)

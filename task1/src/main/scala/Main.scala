@@ -5,10 +5,10 @@ object Main {
 
 
   def fibonacci(n: Int): Either[String, Int]  = {
-    if(n < 0) Left("n must be non-negative")
+    if(n < 0) return Left("n must be non-negative")
 
     @tailrec
-    def tailFib(n: Int, prev: Int, cur: Int): Int = {
+    def tailFib(n: Int, prev: Int, cur: Int): Int =
       if (n > 0) tailFib(n - 1, prev = prev + cur, cur = prev)
       else cur
 
@@ -46,12 +46,12 @@ object Main {
 
     val resT = numbers.distinct
     val nums = List.tabulate(sqrt.toInt/2 + 2)(x => 2*x + 1).filter(_ >=5)
-    val set = mutable.Set[Int]()
-    for{
+
+    val set =  for{
       x <- resT
       num <- nums
       if (x%(num) == 0)
-    } set.add(x)
+    } yield(x)
     val res = resT.filter(!set.contains(_))
 
     val result = n match {

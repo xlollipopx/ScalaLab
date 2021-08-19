@@ -1,22 +1,27 @@
 package com.view
-
-import java.io.BufferedWriter
-import java.io.{File, FileWriter}
+import java.io.{ DataOutputStream, File, FileOutputStream}
 
 
-class FileMatrixPrinter  {
+sealed trait Printer[T]{
+  def print(): Unit
+}
 
-  def print(filePath: String, matrix: Array[Array[String]]): Unit ={
-    val file = new File(filePath)
-    val bw = new BufferedWriter(new FileWriter(file))
+sealed trait MatrixPrinter extends Printer[List[List[String]]]{
+}
+
+final case class FileMatrixPrinter(filePath: String, matrix: List[List[String]]) extends MatrixPrinter {
+
+  def print(): Unit ={
+    val dataOutputStream =
+      new DataOutputStream(new FileOutputStream(new File("src/main/resources/output.txt")))
     for (row <- matrix) {
       for(el <- row){
-        bw.write(el)
-        bw.write("    ")
+        dataOutputStream.writeBytes(el)
+        dataOutputStream.writeBytes("    ")
       }
-      bw.write('\n')
+      dataOutputStream.writeBytes("\n")
     }
-    bw.close()
+    dataOutputStream.close()
   }
 
 }

@@ -1,29 +1,45 @@
 package com
 
-import com.logic.MatrixCalculator
-import com.data.MatrixFileCreator
+import com.logic.{Cell, MatrixProcessor, WordCell}
+import com.data.LocalSpreadsheetParser
 import com.view.FileMatrixPrinter
-
-import java.io.File
-import scala.Array.ofDim
-import scala.io.Source
-import java.util.StringTokenizer
-import scala.:+
-import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
 
 
 object Application {
 
-  def main(args: Array[String]): Unit = {
-    val inputPath = sys.env("INPUT")
-    val matrix = (MatrixFileCreator(inputPath)).create()
-    val result =  (MatrixCalculator(matrix)).calculate()
-    print(result.map(_.mkString("    ")).mkString("\n"))
-    val outputPath = sys.env("OUTPUT")
-    val filePrinter = new FileMatrixPrinter
-    filePrinter.print(outputPath, result)
-  }
+  type ErrorMessage = String
+  final case class Spreadsheet(spreadsheet: List[List[Cell]])
 
+  def validatePath(path:  String): Either[ErrorMessage, String] =
+    if(new java.io.File(path).exists) Right(path)
+    else Left("Wrong path")
+
+
+
+  def main(args: Array[String]): Unit = {
+    val readPath = args(0)
+    val writePath = args(1)
+
+    val sph =new  LocalSpreadsheetParser(readPath)
+    val mpr = new MatrixProcessor()
+   print(mpr.calculateCell(1,2, sph.parse().toOption.get))
+
+    for {
+      validReadPath  <- validatePath(readPath)
+      validWritePath <- validatePath(writePath)
+
+      spreadsheetParser  = new LocalSpreadsheetParser(validReadPath)
+
+      parsedSpreadsheet <- spreadsheetParser.parse()
+
+        spreadsheetProcessor = new MatrixProcessor().calculateCell(1,3, parsedSpreadsheet)
+
+
+      //      spreadsheetWriter = new LocalSpreadsheetWriter
+      //      _                <- spreadsheetWriter.write(validWritePath, processedSpreadsheet)
+    } print(spreadsheetProcessor)
+
+
+  }
 
 }

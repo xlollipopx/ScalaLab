@@ -1,25 +1,23 @@
 package com.data
 
-import java.io.File
-import scala.Array.ofDim
+import com.Application.Spreadsheet
+import com.logic.Cell
+import org.scalactic.ErrorMessage
+
 import scala.io.Source
+import scala.util.{Failure, Success, Try}
 
-
-
-sealed trait Creator[T]{
-  def create(): T
+trait Parser[T]{
+  def parse(): Either[ErrorMessage,T]
 }
 
-sealed trait MatrixCreator extends Creator[Array[Array[String]]]{
+trait SpreadsheetParser extends Parser[Spreadsheet]{
 }
 
-final case class MatrixFileCreator(filePath: String) extends MatrixCreator {
-
-  def create():Array[Array[String]] = {
-    val source = Source.fromFile(filePath)
-    val lines = source.getLines()
-    lines.drop(1)
-    val matrix = lines.map(line=> line.split("\\s{4}"))
-    matrix.toArray
-  }
+class LocalSpreadsheetParser(path: String) extends SpreadsheetParser {
+  override def parse(): Either[ErrorMessage, Spreadsheet] =
+    Try(Source.fromFile(path).getLines()) match {
+      case Success(lines) => Right(Spreadsheet(lines.drop(1).map(line=> line.split("\\s{4}")).toList.map(x => x.toList.map(y => Cell(y)))))
+      case Failure(e) => Left("Could not read")
+    }
 }

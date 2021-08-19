@@ -1,96 +1,89 @@
 package com.logic
 
-import java.util.StringTokenizer
-import scala.Array.ofDim
-import scala.collection.mutable.ArrayBuffer
+import com.Application.Spreadsheet
 
+
+sealed trait Cell {
+  def getValue: List[(String,String)]
+}
+abstract class NotExpressionCell(cell: String) extends Cell{
+  override def getValue: List[(String, String)] = List((cell, ""))
+}
+case class Expression(cell: String) extends Cell {
+  override def getValue: List[(String,String)] = {
+    val list = "+"::cell.split("[\\s=]+").toList.tail
+    list.foldLeft(List.empty[(String, String)] -> (None: Option[String])) {
+      case ((result, Some(key)), value) =>  (result :+ (key -> value)) -> None
+      case ((result, None), key) =>         result -> Some(key)
+    }._1
+  }
+}
+case class WordCell(cell: String) extends NotExpressionCell(cell) with Cell
+case class ErrorCell(cell: String) extends NotExpressionCell(cell) with Cell
+case class NumberCell(cell: String) extends NotExpressionCell(cell) with Cell
+case class EmptyCell(cell: String) extends NotExpressionCell(cell) with Cell
+
+object Cell {
+  def apply(cell: String):Cell  ={
+    cell match {
+      case cell if cell.matches("\\d+") => NumberCell(cell)
+      case cell if cell.contains('\'') => WordCell(cell)
+      case cell if cell.contains('#') => ErrorCell(cell)
+      case cell if cell == "" => EmptyCell(cell)
+      case _ => Expression(cell)
+    }
+  }
+}
 
 sealed trait Calculator[T] {
   def calculate(): T
 }
 
-final case class MatrixCalculator (matrix: Array[Array[String]]) extends Calculator[Array[Array[String]]]{
+final class MatrixProcessor{
 
-  def calculate():Array[Array[String]] = {
-    val result = ofDim[String](matrix.length, matrix(0).length)
-    for(i <- matrix.indices){
-      for(j <- matrix(0).indices){
+  def calculate(matrix: Spreadsheet):Spreadsheet = {
+    val res = matrix.spreadsheet.map(x => x.map(cell => cell match {
+  case cell if cell.isInstanceOf[EmptyCell] => cell
+  case cell if cell.isInstanceOf[EmptyCell] => cell
 
-        result(i)(j) = if(matrix(i)(j).charAt(0) == '\''){
-          matrix(i)(j).substring(1)
-        } else if(matrix(i)(j) == ""){
-         matrix(i)(j)
-        } else {
-           calculateCell(i,j, matrix)
-        }
-      }
-    }
-    result
+}))
+    Spreadsheet(res)
   }
 
-  def calculateCell(i: Int, j: Int, matrix: Array[Array[String]] ): String= {
-    /*This array helps to find cycles in matrix.
-     *For example A1 has a reference to B1 and B1 has a reference to A1.
-     * Array visited has three states:
-     * 0 - haven't visited yet
-     * 1 - cell is visited and stays in recursion stack
-     * 2 - cell is visited and not in recursion stack */
-    val visited = ofDim[Int](matrix.length, matrix(0).length)
+  def calculateCell(i: Int, j: Int, matrix:  Spreadsheet): Cell= {
 
-    def calculate(i: Int, j: Int, matrix: Array[Array[String]] ): String= {
-      val strCell = matrix(i)(j)
+    def calculate(i: Int, j: Int, matrix: Spreadsheet ): Cell= {
+      val cell = matrix.spreadsheet(i)(j)
 
-      if(visited(i)(j) == 1){
-        return "#cycle"
+      cell match {
+        case cell if cell.isInstanceOf[EmptyCell] =>  ErrorCell("#not all numbers")
+        case cell if cell.isInstanceOf[WordCell] =>  ErrorCell("#not all numbers")
+        case cell if cell.isInstanceOf[NumberCell] =>  cell
+        case _ => Cell(cell.getValue.foldLeft(0)((acc, pair) =>
+          if(isAllDigits(pair._2))  updateExpression(acc, pair._1, pair._2)
+          else updateExpression(acc, pair._1,
+            calculate(getCellIndex(pair._2)._1, getCellIndex(pair._2)._2, matrix).getValue.head._1)).toString)
+
       }
-      if(strCell(0) == '\'' || strCell == ""){
-        return "#not all numbers"
-      }
-      if(isAllDigits(strCell)) {
-        return strCell
-      }
-      visited(i)(j) = 1
-      val list = ArrayBuffer[String]()
-      val stringTokenizer = new StringTokenizer(strCell, "+-*/=", true)
-      while (stringTokenizer.hasMoreElements) {
-        list += stringTokenizer.nextElement.toString
-      }
-      list(0) = "+"
-      var result = 0
-      var k = 0
-      /* Calculating all operands in the cell recursively
-      * and calculating the result */
-      while(k < list.length - 1) {
-        var operand = ""
-        if(isAllDigits(list(k + 1))){
-          operand = list(k + 1)
-          if(operand == "0" && list(k) == "/"){
-            return "#/ by zero"
-          }
-        } else {
-          val a = list(k + 1).substring(1).toInt - 1
-          val b = list(k + 1).charAt(0) - 'A'
-          operand = calculate(a,b,matrix)
-          visited(a)(b) = 2
-          if(operand(0) == '#'){
-            return operand
-          }
-          if(operand == "0" && list(k) == "/"){
-            return "#/ by zero"
-          }
-        }
-        val tmpNum = operand.toInt
-        list(k) match{
-          case "+" => result += tmpNum
-          case "-" => result -= tmpNum
-          case "*" => result *= tmpNum
-          case "/" => result /= tmpNum
-        }
-        k += 2
-      }
-      result.toString
+
     }
     calculate(i,j,matrix)
+  }
+
+  private def updateExpression(current: Int, operation: String, x: String ): Int ={
+    operation match{
+      case "+"  => (current + x.toInt)
+      case "-"  => (current - x.toInt)
+      case "*"  => (current * x.toInt)
+      case "/"  => (current / x.toInt)
+//      case "/" if x == "0" => Cell("#/ by zero")
+//      case operation if x.contains("#") =>Cell(current.getValue.head._1)
+    }
+  }
+
+  private def getCellIndex(x: String): (Int, Int) = {
+   val res= x.span( _== x.head)
+    (res._2.toInt - 1, res._1.toCharArray.head - 'A')
   }
 
   private def isAllDigits(x: String): Boolean = x forall Character.isDigit
