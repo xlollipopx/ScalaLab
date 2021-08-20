@@ -2,12 +2,15 @@ package com.logic
 
 import com.Application.Spreadsheet
 
+import scala.annotation.tailrec
+
 
 sealed trait Cell {
   def getValue: List[(String,String)]
 }
 abstract class NotExpressionCell(cell: String) extends Cell{
-  override def getValue: List[(String, String)] = List((cell, ""))
+  override def getValue: List[(String, String)] = List((cell, "+"))
+  override def toString: String = cell
 }
 case class Expression(cell: String) extends Cell {
   override def getValue: List[(String,String)] = {
@@ -26,7 +29,7 @@ case class EmptyCell(cell: String) extends NotExpressionCell(cell) with Cell
 object Cell {
   def apply(cell: String):Cell  ={
     cell match {
-      case cell if cell.matches("\\d+") => NumberCell(cell)
+      case cell if cell.matches("[+-]?\\d+") => NumberCell(cell)
       case cell if cell.contains('\'') => WordCell(cell)
       case cell if cell.contains('#') => ErrorCell(cell)
       case cell if cell == "" => EmptyCell(cell)
@@ -34,26 +37,24 @@ object Cell {
     }
   }
 }
-
-sealed trait Calculator[T] {
-  def calculate(): T
+trait Processor {
+  def process(spreadsheet: Spreadsheet): Spreadsheet
 }
 
-final class MatrixProcessor{
+final class SpreadsheetProcessor extends Processor {
 
-  def calculate(matrix: Spreadsheet):Spreadsheet = {
-    val res = matrix.spreadsheet.map(x => x.map(cell => cell match {
-  case cell if cell.isInstanceOf[EmptyCell] => cell
-  case cell if cell.isInstanceOf[EmptyCell] => cell
-
-}))
+  def process(spreadsheet: Spreadsheet):Spreadsheet = {
+    val res = spreadsheet.spreadsheet.map(x => x.map {
+      case cell if cell.isInstanceOf[EmptyCell] => cell
+      case cell if cell.isInstanceOf[WordCell] => cell
+      case cell if cell.isInstanceOf[NumberCell] => cell
+      case cell => processCell(cell, spreadsheet)
+    })
     Spreadsheet(res)
   }
 
-  def calculateCell(i: Int, j: Int, matrix:  Spreadsheet): Cell= {
-
-    def calculate(i: Int, j: Int, matrix: Spreadsheet ): Cell= {
-      val cell = matrix.spreadsheet(i)(j)
+  def processCell(cell: Cell, matrix:  Spreadsheet): Cell= {
+def process(cell: Cell, matrix: Spreadsheet ): Cell= {
 
       cell match {
         case cell if cell.isInstanceOf[EmptyCell] =>  ErrorCell("#not all numbers")
@@ -62,12 +63,12 @@ final class MatrixProcessor{
         case _ => Cell(cell.getValue.foldLeft(0)((acc, pair) =>
           if(isAllDigits(pair._2))  updateExpression(acc, pair._1, pair._2)
           else updateExpression(acc, pair._1,
-            calculate(getCellIndex(pair._2)._1, getCellIndex(pair._2)._2, matrix).getValue.head._1)).toString)
-
+            process(matrix.spreadsheet(getCellIndex(pair._2)._1)(getCellIndex(pair._2)._2),
+              matrix).getValue.head._1)).toString)
       }
 
     }
-    calculate(i,j,matrix)
+    process(cell, matrix)
   }
 
   private def updateExpression(current: Int, operation: String, x: String ): Int ={
@@ -76,8 +77,6 @@ final class MatrixProcessor{
       case "-"  => (current - x.toInt)
       case "*"  => (current * x.toInt)
       case "/"  => (current / x.toInt)
-//      case "/" if x == "0" => Cell("#/ by zero")
-//      case operation if x.contains("#") =>Cell(current.getValue.head._1)
     }
   }
 

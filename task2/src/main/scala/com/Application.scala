@@ -1,8 +1,8 @@
 package com
 
-import com.logic.{Cell, MatrixProcessor, WordCell}
+import com.logic.{Cell, SpreadsheetProcessor, WordCell}
 import com.data.LocalSpreadsheetParser
-import com.view.FileMatrixPrinter
+import com.view.FileSpreadsheetWriter
 
 
 object Application {
@@ -20,25 +20,17 @@ object Application {
     val readPath = args(0)
     val writePath = args(1)
 
-    val sph =new  LocalSpreadsheetParser(readPath)
-    val mpr = new MatrixProcessor()
-   print(mpr.calculateCell(1,2, sph.parse().toOption.get))
-
     for {
       validReadPath  <- validatePath(readPath)
       validWritePath <- validatePath(writePath)
 
       spreadsheetParser  = new LocalSpreadsheetParser(validReadPath)
-
       parsedSpreadsheet <- spreadsheetParser.parse()
 
-        spreadsheetProcessor = new MatrixProcessor().calculateCell(1,3, parsedSpreadsheet)
-
-
-      //      spreadsheetWriter = new LocalSpreadsheetWriter
-      //      _                <- spreadsheetWriter.write(validWritePath, processedSpreadsheet)
-    } print(spreadsheetProcessor)
-
+      spreadsheetProcessor = new SpreadsheetProcessor
+      processedSpreadsheet = spreadsheetProcessor.process(parsedSpreadsheet)
+      spreadsheetWriter = new FileSpreadsheetWriter().write(validWritePath, processedSpreadsheet)
+    } yield (print(parsedSpreadsheet))
 
   }
 
