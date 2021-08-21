@@ -17,7 +17,7 @@ object DataStructures {
 
   def sortConsideringEqualValues[T](map: Map[T, Int]): List[(Set[T], Int)] = {
     val sorted = ListMap(map.toSeq.sortWith(_._2 < _._2):_*)
-    sorted.toList.groupBy(_._2).view.mapValues(x => x.map(_._1).toSet).map{ case (x, y) => (y, x) }.toList
+    sorted.toList.groupBy{case(a,b) => b}.view.mapValues(_.map{case(x,y) => x}.toSet).map{ case (x, y) => (y, x) }.toList
   }
 
 
