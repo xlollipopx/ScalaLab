@@ -13,17 +13,17 @@ object DataStructures {
       case _ => Set.empty
     }
   }
-
+  def multiply(a: Int, b: Int): Int = {a * b}
 
   def sortConsideringEqualValues[T](map: Map[T, Int]): List[(Set[T], Int)] = {
-    val sorted = ListMap(map.toSeq.sortWith { case((a,b),(c,d)) =>
+    val sorted = ListMap(map.toSeq.sortWith { case((_,b),(_,d)) =>
       b < d
     }: _*)
 
     sorted.
       toList.
-      groupBy { case (a, b) => b }.view.
-      mapValues(_.map { case (x, y) => x }.toSet).
+      groupBy { case (_, b) => b }.view.
+      mapValues(_.map { case (x, _) => x }.toSet).
       map { case (x, y) => (y, x) }.toList
   }
 
