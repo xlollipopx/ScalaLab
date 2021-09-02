@@ -2,5 +2,17 @@
 <project version="4">
   <component name="ScalaCompilerConfiguration">
     <profile name="sbt 1" modules="internship" />
+    <profile name="sbt 2" modules="scala-internship">
+      <option name="deprecationWarnings" value="true" />
+      <option name="featureWarnings" value="true" />
+      <parameters>
+        <parameter value="-Ymacro-annotations" />
+        <parameter value="-Xfatal-warnings" />
+        <parameter value="-Xsource:3" />
+      </parameters>
+      <plugins>
+        <plugin path="C:\Users\USER\AppData\Local\Coursier\cache\v1\https\repo1.maven.org\maven2\org\typelevel\kind-projector_2.13.6\0.13.0\kind-projector_2.13.6-0.13.0.jar" />
+      </plugins>
+    </profile>
   </component>
 </project>
