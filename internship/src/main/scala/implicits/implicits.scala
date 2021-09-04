@@ -5,18 +5,17 @@ object implicits {
   case class Human(name: String)
 
   object Task1 {
+
     trait Show[T] {
       def apply(value: T): String
     }
 
-//    def show[T: Show](value: T): String =
-//      implicitly[Show[T]].apply(value)
-def show[T](value: T)(implicit showable: Show[T]): String =
-  showable.apply(value)
+    def show[T](value: T)(implicit show: Show[T]): String =
+      show.apply(value)
 
     object syntax {
-      implicit class ShowOps[T: Show](inner: T){
-        def show: String = Task1.show(inner)
+      implicit class ShowOps[T: Show](inner: T) {
+        def show: String = Task1.show(inner).reverse
       }
     }
 
@@ -37,64 +36,70 @@ def show[T](value: T)(implicit showable: Show[T]): String =
   Let's get to know them better!
    */
   object Exercise3 {
-    /**
-     * Amount of years since the invention of the
-     * hyper-drive technology (we are certainly in negative values at the moment).
-     */
 
-    object implicits {
+    object hde {
+
+      case class HDEYears(value: Long)
+
+      implicit def ordering[A <: HDEYears]: Ordering[A] =
+        Ordering.by(e => (e.value, e.value))
 
 
       def secondBiggestValue[T](values: Seq[T])(implicit ordering: Ordering[T]): Option[T] = {
-        ordering
-      }
-
-      object syntax{
-
-      }
-
-      object instances{
+        val tempValues = values.sorted.distinct
+        tempValues match {
+          case _ :: tail if tempValues.size > 1 => Some(tail.head)
+          case _ => None
+        }
 
       }
 
     }
-
-    case class HDEYears(value: Long)
-
-    /*
-    should be defined on any T which has Ordering[T] and return second biggest value from the sequence
-    if it exists
-    should work on our custom HDEYears
-    change the signature accordingly, add implicit instances if needed
-     */
-    def secondBiggestValue[T](values: Seq[T]): Option[T] = ???
-
-
-    /**
-     * Custom number type!
-     * For now it just wraps a Float but more interesting stuff could come in the future, who knows...
-     */
     case class CustomNumber(value: Float)
 
-    /*
-    should be defined on any T which has Summable[T], should return sum value if it can be obtained
-    should work on our custom CustomNumber
-    change the signature accordingly, add implicit instances if needed
-     */
-    def sum[T](values: Seq[T]): Option[T] = ???
-  }
+    trait Summable[T] {
+      def apply(a: T, b: T): T
+    }
 
-  def main(args: Array[String]): Unit = {
-    import Task1.instances._
-    import Task1.syntax._
+    def +[T](a: T, b: T)(implicit summable: Summable[T]): T = {
+      summable.apply(a, b)
+    }
 
-    println(42.show)
-    println("hello!".show)
-    println(1,313.show)
-    println(Seq("I", "am", "a", "ghost").show)
-    println(Seq(Seq(1,2,3), Seq(2)).show)
-    println(Human("Denis").show)
-  }
+    object syntax {
+      implicit class SummableOps[T: Summable](seq: Seq[T]) {
+        def sumAll(): T = seq.reduceLeft((sum, el) => Exercise3.+(sum, el))
+      }
+
+    }
+    object instances {
+      implicit val numericAdd: Summable[Int] = (a: Int, b: Int) => a + b
+
+      implicit val customNumberAdd: Summable[CustomNumber] = (a: CustomNumber, b: CustomNumber) =>
+        CustomNumber(a.value + b.value)
+    }
+
+    }
+
+    def main(args: Array[String]): Unit = {
+      import Task1.instances._
+      import Task1.syntax._
+      import Exercise3.syntax._
+      import Exercise3.instances._
+      import Exercise3.hde._
+      import Exercise3.CustomNumber
+
+      42.show
+      println("hello!".show)
+      println(1, 313.show)
+      println(Seq("I", "am", "a", "ghost").show)
+      println(Seq(Seq(1, 2, 3), Seq(2)).show)
+      println(Human("Denis").show)
+      println(List(1,2,3).sumAll())
+      println(List(CustomNumber(1), CustomNumber(2.23f),CustomNumber(2)).sumAll())
+      println(secondBiggestValue(Seq(HDEYears(1), HDEYears(2), HDEYears(3))))
+
+
+    }
 
 
 }
