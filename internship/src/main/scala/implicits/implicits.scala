@@ -72,9 +72,8 @@ object implicits {
 
     object syntax {
       implicit class SummableOps[T: Summable](seq: Seq[T]) {
-        def sumAll(): T = if(seq.nonEmpty)
-          seq.reduceLeft((sum, el) => Exercise3.+(sum, el))
-        else Exercise3.empty()
+        def sumAll(): T =
+          seq.fold(Exercise3.empty())(Exercise3.+(_, _))
       }
 
     }
