@@ -46,7 +46,7 @@ object implicits {
 
 
       def secondBiggestValue[T](values: Seq[T])(implicit ordering: Ordering[T]): Option[T] = {
-        val tempValues = values.sorted.distinct.reverse
+        val tempValues = values.sorted(Ordering[T].reverse).distinct
         tempValues match {
           case _ :: tail if tempValues.size > 1 => Some(tail.head)
           case _ => None
@@ -73,7 +73,7 @@ object implicits {
     object syntax {
       implicit class SummableOps[T: Summable](seq: Seq[T]) {
         def sumAll(): T =
-          seq.fold(Exercise3.empty())(Exercise3.+(_, _))
+          seq.fold(Exercise3.empty())(Exercise3.+)
       }
 
     }
