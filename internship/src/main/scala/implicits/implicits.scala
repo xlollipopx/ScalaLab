@@ -46,7 +46,7 @@ object implicits {
 
 
       def secondBiggestValue[T](values: Seq[T])(implicit ordering: Ordering[T]): Option[T] = {
-        val tempValues = values.sorted.distinct
+        val tempValues = values.sorted.distinct.reverse
         tempValues match {
           case _ :: tail if tempValues.size > 1 => Some(tail.head)
           case _ => None
@@ -59,23 +59,38 @@ object implicits {
 
     trait Summable[T] {
       def apply(a: T, b: T): T
+      def empty(): T
     }
 
     def +[T](a: T, b: T)(implicit summable: Summable[T]): T = {
       summable.apply(a, b)
     }
 
+    def empty[T]()(implicit summable: Summable[T]): T = {
+      summable.empty()
+    }
+
     object syntax {
       implicit class SummableOps[T: Summable](seq: Seq[T]) {
-        def sumAll(): T = seq.reduceLeft((sum, el) => Exercise3.+(sum, el))
+        def sumAll(): T = if(seq.nonEmpty)
+          seq.reduceLeft((sum, el) => Exercise3.+(sum, el))
+        else Exercise3.empty()
       }
 
     }
     object instances {
-      implicit val numericAdd: Summable[Int] = (a: Int, b: Int) => a + b
+      implicit val numericAdd: Summable[Int] = new Summable[Int] {
+        override def apply(a: Int, b: Int): Int = a + b
+        override def empty(): Int = 0
+      }
 
-      implicit val customNumberAdd: Summable[CustomNumber] = (a: CustomNumber, b: CustomNumber) =>
-        CustomNumber(a.value + b.value)
+
+
+      implicit val customNumberAdd: Summable[CustomNumber] = new Summable[CustomNumber] {
+        override def apply(a: CustomNumber, b: CustomNumber): CustomNumber = CustomNumber(a.value + b.value)
+        override def empty(): CustomNumber = CustomNumber(0)
+
+      }
     }
 
     }
@@ -96,9 +111,9 @@ object implicits {
       println(Human("Denis").show)
       println(List(1,2,3).sumAll())
       println(List(CustomNumber(1), CustomNumber(2.23f),CustomNumber(2)).sumAll())
-      println(secondBiggestValue(Seq(HDEYears(1), HDEYears(2), HDEYears(3))))
-
-
+      println(secondBiggestValue(Seq(HDEYears(1), HDEYears(2), HDEYears(4),HDEYears(5),HDEYears(5))))
+      println(secondBiggestValue(Seq()))
+      print(List.empty[Int].sumAll())
     }
 
 
