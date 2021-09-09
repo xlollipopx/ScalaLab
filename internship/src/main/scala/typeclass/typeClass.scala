@@ -1,6 +1,6 @@
 package typeclass
 
-object typeClass {
+object TypeClass {
 
   object TypeClassTask {
 

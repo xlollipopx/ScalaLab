@@ -1,6 +1,6 @@
 package implicits
 
-object implicits {
+object Implicits {
 
   case class Human(name: String)
 
