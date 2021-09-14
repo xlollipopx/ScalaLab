@@ -21,7 +21,7 @@ object JsonTask {
   type ErrorMessage = String
 
   def getUrlContent(url: URL): Either[ErrorMessage, String] = {
-    Try( Source.fromURL(url).getLines() ) match {
+    Try( Source.fromURL(url).getLines()) match {
       case Success(lines) => Right(lines.foldLeft("")((acc, el) => acc + el + "\n"))
       case Failure(e) => Left("Could not read from resource")
     }

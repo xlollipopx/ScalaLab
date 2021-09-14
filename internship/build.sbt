@@ -20,7 +20,8 @@ val enumeratumVersion       = "1.6.1"
 val dtoMapperChimneyVersion = "0.6.1"
 val circeVersion = "0.14.1"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.8" % Test
+libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.9"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.9" % "test"
 libraryDependencies += "org.typelevel" %% "cats-effect" % "3.2.2"
 libraryDependencies += "eu.timepit" %% "refined" % "0.9.15"
 libraryDependencies ++= Seq(
