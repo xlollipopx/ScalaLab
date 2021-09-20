@@ -26,15 +26,13 @@ import scala.util.Failure
 
 object Errors {
 
-
-  type SecurityCode = String Refined MatchesRegex[W.`"^[0-9]{3}$"`.T]
-  type CardNumber = String Refined MatchesRegex[W.`"^[0-9]{16}$"`.T]
-  type Owner = String Refined MatchesRegex[W.`"^(([A-Za-z]+ ?){1,3})$"`.T]
-  type Age =  Int Refined Interval.ClosedOpen[18, 150]
+  type SecurityCode   = String Refined MatchesRegex[W.`"^[0-9]{3}$"`.T]
+  type CardNumber     = String Refined MatchesRegex[W.`"^[0-9]{16}$"`.T]
+  type Owner          = String Refined MatchesRegex[W.`"^(([A-Za-z]+ ?){1,3})$"`.T]
+  type Age            = Int Refined Interval.ClosedOpen[18, 150]
   type PassportNumber = String Refined MatchesRegex[W.`"^(?=.*[A-Z])(?=.*[0-9])[A-Z0-9]+$"`.T]
-  type Date = String
+  type Date           = String
   val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-
 
   final case class AccountDto(person: PersonDto, card: PaymentCardDto)
 
@@ -48,7 +46,6 @@ object Errors {
 
   final case class PaymentCard(cardNumber: CardNumber, expirationDate: Date, cvv: SecurityCode)
 
-
   sealed trait AccountValidationError
 
   object AccountValidationError {
@@ -56,7 +53,6 @@ object Errors {
     final case object NameIsInvalid extends AccountValidationError {
       override def toString: String = "Must contain alphabetic first name and last name"
     }
-
 
     final case object ImpossibleCvv extends AccountValidationError {
       override def toString: String = "Cvv number must be 3 digit number"
@@ -90,22 +86,19 @@ object Errors {
 
     type AllErrorsOr[A] = ValidatedNec[AccountValidationError, A]
 
-
     def validateParameter[T, P](
-                                 parameter: T,
-                                 error: AccountValidationError
-                               )(
-                                 implicit v: Validate[T, P]
-                               ): AllErrorsOr[Refined[T, P]] = {
+      parameter: T,
+      error:     AccountValidationError
+    )(
+      implicit v: Validate[T, P]
+    ): AllErrorsOr[Refined[T, P]] = {
       val res: Either[String, Refined[T, P]] = refineV(parameter)
       res.left.map(_ => error).toValidatedNec
     }
 
-
     def validateOwner(name: String): AllErrorsOr[Owner] = {
       validateParameter(name, NameIsInvalid)
     }
-
 
     def validateCardCvv(cvv: String): AllErrorsOr[SecurityCode] = {
       validateParameter(cvv, ImpossibleCvv)
@@ -119,66 +112,65 @@ object Errors {
       validateParameter(age, AgeIsOutOfBounds)
     }
 
-
     def validateCardDate(rawDate: String): AllErrorsOr[Date] = {
 
       Try(LocalDate.parse(rawDate, formatter)) match {
-        case Success(date) if date.isAfter(LocalDate.now) => rawDate.validNec
+        case Success(date) if date.isAfter(LocalDate.now)  => rawDate.validNec
         case Success(date) if date.isBefore(LocalDate.now) => DateIsNotValid.invalidNec
-        case Failure(e) => DateIsNotValid.invalidNec
+        case Failure(e)                                    => DateIsNotValid.invalidNec
       }
     }
 
     def validateBirthDate(rawDate: String): AllErrorsOr[Date] = {
       Try(LocalDate.parse(rawDate, formatter)) match {
-        case Success(date) if date.isAfter(LocalDate.parse("1950-01-01"))
-          && date.isBefore(LocalDate.now)  => rawDate.validNec
+        case Success(date)
+            if date.isAfter(LocalDate.parse("1950-01-01"))
+              && date.isBefore(LocalDate.now) =>
+          rawDate.validNec
         case Failure(e) => DateIsNotValid.invalidNec
-        case _ => DateIsNotValid.invalidNec
+        case _          => DateIsNotValid.invalidNec
       }
     }
-
-
 
     def validatePassportNumber(passportNumber: String): AllErrorsOr[PassportNumber] = {
       validateParameter(passportNumber, ImpossiblePassportNumber)
     }
-
 
     def validatePerson(person: PersonDto): AllErrorsOr[Person] = (
       validateOwner(person.name),
       validatePersonAge(person.age),
       validatePassportNumber(person.passportNumber),
       validateBirthDate(person.date)
-      ).mapN(Person)
+    ).mapN(Person)
 
     def validateCard(paymentCard: PaymentCardDto): AllErrorsOr[PaymentCard] = (
       validateCardNumber(paymentCard.cardNumber),
       validateCardDate(paymentCard.date),
       validateCardCvv(paymentCard.cvv)
-      ).mapN(PaymentCard)
+    ).mapN(PaymentCard)
 
     def validate(personDto: PersonDto, paymentCardDto: PaymentCardDto): AllErrorsOr[Account] = (
-      validatePerson(PersonDto(personDto.name, personDto.age, personDto.passportNumber,
-        personDto.date)),
-      validateCard(PaymentCardDto(paymentCardDto.cardNumber,paymentCardDto.date, paymentCardDto.cvv))
-      ).mapN(Account)
+      validatePerson(PersonDto(personDto.name, personDto.age, personDto.passportNumber, personDto.date)),
+      validateCard(PaymentCardDto(paymentCardDto.cardNumber, paymentCardDto.date, paymentCardDto.cvv))
+    ).mapN(Account)
 
   }
-
 
   def main(args: Array[String]): Unit = {
 
     import AccountValidator._
 
+    println(
+      validate(
+        PersonDto("Din Smith", 20, "MP142293", "2001-05-25"),
+        PaymentCardDto("3948576857492837", "2024-01-16", "810")
+      )
+    )
 
-    println(validate(PersonDto("Din Smith", 20, "MP142293", "2001-05-25"),
-      PaymentCardDto("3948576857492837", "2024-01-16", "810")))
-
-    println(validate(PersonDto("Din", 16, "MP142293", "1900-02-08"),
-      PaymentCardDto("19485768592837", "2020-03-14", "14")))
+    println(
+      validate(PersonDto("Din", 16, "MP142293", "1900-02-08"), PaymentCardDto("19485768592837", "2020-03-14", "14"))
+    )
 
   }
-
 
 }

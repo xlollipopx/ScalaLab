@@ -14,7 +14,7 @@ object TypeClass {
 
     implicit class HashCodeSyntax[T](x: T) {
       def hash(implicit hc: HashCode[T]): Int = {
-       hc.hash(x)
+        hc.hash(x)
       }
     }
 
