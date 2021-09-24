@@ -47,14 +47,15 @@ object Task2 {
 
   def main(args: Array[String]): Unit = {
 
-    println(optionTraverse(List(Option(1), Option(2), Option(19))))
-    println(optionTraverse(List(Option(1), Option(2), Option(None))))
-    println(eitherTraverse(List(Right(1), Right(4), Right(6))))
-    println(eitherTraverse(List(Right(1), Right(3), Left(4))))
-    val leafOne   = Leaf(1)
-    val leafTwo   = Leaf(2)
-    val branchOne = Branch(10, leafOne, leafTwo)
-    print(FunctorTree.map(branchOne)(x => 2 * x))
+//    println(optionTraverse(List(Option(1), Option(2), Option(19))))
+//    println(optionTraverse(List(Option(1), Option(2), Option(None))))
+//    println(eitherTraverse(List(Right(1), Right(4), Right(6))))
+//    println(eitherTraverse(List(Right(1), Right(3), Left(4))))
+//    val leafOne   = Leaf(1)
+//    val leafTwo   = Leaf(2)
+//    val branchOne = Branch(10, leafOne, leafTwo)
+//    print(FunctorTree.map(branchOne)(x => 2 * x))
+    val p = println("lksv")
 
   }
 
