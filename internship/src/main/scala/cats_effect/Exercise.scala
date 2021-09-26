@@ -7,7 +7,7 @@ import scala.io.StdIn
 import cats.implicits._
 
 import scala.annotation.tailrec
-import scala.concurrent.{Await, Future}
+import scala.concurrent.{duration, Await, Future}
 import scala.concurrent.duration._
 import scala.util.{Random, Try}
 
@@ -39,17 +39,22 @@ object Exercise1_Functional extends IOApp {
     _     <- IO(println("What is your favourite animal?"))
     animal = StdIn.readLine()
     output = response(animal)
-    _ <- output match {
+    _     <- (getOutput(output, console, counter))
+  } yield ExitCode.Success
+
+  def getOutput(output: Option[String], console: Console, counter: Int = 0): IO[Either[Unit, List[Any]]] =
+    output match {
       case Some(x) =>
-        IO(println(x))
+        IO(Left(println(x)))
       case None =>
         if (counter >= 2) {
-          IO(println("I am disappoint. You have failed to answer too many times."))
+          IO(Left(println("I am disappoint. You have failed to answer too many times.")))
         } else {
-          List(IO(println("Empty input is not valid, try again...")), process(console, counter + 1)).sequence
+          List(IO(println("Empty input is not valid, try again...")), process(console, counter + 1)).sequence.flatMap(
+            x => IO(Right(x))
+          )
         }
     }
-  } yield ExitCode.Success
 
   override def run(args: List[String]): IO[ExitCode] = process(Console.Real)
 }

@@ -18,20 +18,24 @@ object Effects extends IOApp {
   // 1 - sequence two IOs and take the result of the LAST one
   // hint: use flatMap
   def sequenceTakeLast[A, B](ioa: IO[A], iob: IO[B]): IO[B] = {
-    val a = List(ioa, iob).sequence
-    a.flatMap(x => IO(x.tail.head.asInstanceOf[B]))
+    for {
+      _   <- ioa
+      res <- iob
+    } yield res
   }
 
   // 2 - sequence two IOs and take the result of the FIRST one
   // hint: use flatMap
   def sequenceTakeFirst[A, B](ioa: IO[A], iob: IO[B]): IO[A] = {
-    val a = List(ioa, iob).sequence
-    a.flatMap(x => IO(x.head.asInstanceOf[A]))
+    for {
+      res <- ioa
+      _   <- iob
+    } yield res
   }
 
   def run(args: List[String]): IO[ExitCode] = for {
-    _ <- sequenceTakeLast(IO(println(23)), IO(10)).flatMap(x => IO(print(x)))
-    _ <- sequenceTakeFirst(IO(println(21)), IO(println("44")))
+    _ <- sequenceTakeLast(IO(println(23)), IO(10))
+    _ <- sequenceTakeFirst(IO(21), IO(println("44")))
     _ <- forever(IO(println(3)))
   } yield ExitCode.Success
 
