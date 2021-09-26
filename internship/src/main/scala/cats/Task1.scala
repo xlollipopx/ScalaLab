@@ -16,7 +16,7 @@ object Task1 {
     override def pure[A](a: A): List[A] = List(a)
 
     override def flatMap[A, B](fa: List[A])(f: A => List[B]): List[B] = fa match {
-      case Nil => Nil
+      case Nil    => Nil
       case h :: t => f(h) ::: flatMap(t)(f)
     }
 
@@ -27,17 +27,17 @@ object Task1 {
 
     override def flatMap[A, B](fa: Option[A])(f: A => Option[B]): Option[B] = fa match {
       case Some(v) => (f(v))
-      case None => None
+      case None    => None
     }
 
   }
 
   def main(args: Array[String]): Unit = {
 
-    println(listM.flatMap(List(1,2,3))(x => List(x.toString + "a")))
-    println(listM.flatMap(List(1,2,3))(x => List(x, x + 1)))
+    println(listM.flatMap(List(1, 2, 3))(x => List(x.toString + "a")))
+    println(listM.flatMap(List(1, 2, 3))(x => List(x, x + 1)))
     val x = Option(3)
-    print(optionM.flatMap(x)(x => Some("a")))
+    println(optionM.flatMap(x)(x => Some("a")))
 
   }
 }
