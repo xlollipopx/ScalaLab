@@ -2,6 +2,7 @@ package cats_effects
 
 import cats.effect._
 import cats.effect.kernel.Outcome.{Canceled, Errored, Succeeded}
+import cats_effects.Effects.forever
 
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
@@ -48,10 +49,24 @@ object Fibers extends IOApp {
     } yield (a, b)
   }
 
-//  def timeout[A](io: IO[A], duration: FiniteDuration): IO[A] = for {
-//    i <- io.can
-//
-//  } yield ()
+  def timeout[A](io: IO[A], duration: FiniteDuration): IO[A] = for {
+    res <- io.timeoutTo(duration, handleIO(Canceled()))
+  } yield res
 
-  def run(args: List[String]): IO[ExitCode] = { IO(ExitCode.Success) }
+  def timeout2[A](io: IO[A], duration: FiniteDuration): IO[A] = for {
+    ioFib <- io.start
+    fiber <- IO(IO.sleep(duration) >> ioFib.cancel).start
+    _     <- fiber.join
+    resIO <- ioFib.join
+    res   <- handleIO(resIO)
+  } yield res
+
+  def forever[A](io: IO[A]): IO[A] = {
+    io.flatMap(x => forever(io))
+  }
+
+  def run(args: List[String]): IO[ExitCode] = for {
+    _ <- timeout2(IO.sleep(5.seconds) *> IO.raiseError(new RuntimeException("oh no")), 2.seconds)
+
+  } yield ExitCode.Success
 }
