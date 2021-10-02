@@ -16,9 +16,9 @@ object EmployeeService {
   def of[F[_]: Sync]: F[EmployeeService[F]] = for {
     counter   <- Ref.of[F, Long](0)
     employees <- Ref.of[F, Map[Long, Employee]](Map.empty)
-  } yield new InMemoryItemService(counter, employees)
+  } yield new InMemoryEmployeeService(counter, employees)
 
-  final private class InMemoryItemService[F[_]: Sync](
+  final private class InMemoryEmployeeService[F[_]: Sync](
     counter:   Ref[F, Long],
     employees: Ref[F, Map[Long, Employee]]
   ) extends EmployeeService[F] {

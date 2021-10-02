@@ -88,9 +88,8 @@ object SerialRefExercise extends IOApp {
 
         def get: F[A] = r.get
 
-        def modify[B](f: A => F[(A, B)]): F[B] = {
-
-          val res = for {
+        def modify[B](f: A => F[(A, B)]): F[B] =
+          for {
             _       <- s.acquire
             value   <- r.get
             pair    <- f(value)
@@ -99,10 +98,7 @@ object SerialRefExercise extends IOApp {
             _       <- s.release
           } yield str
 
-          res
-        }
-
-        def update(f: A => F[A]): F[Unit] = {
+        def update(f: A => F[A]): F[Unit] =
           for {
             _      <- s.acquire
             value  <- r.get
@@ -110,7 +106,6 @@ object SerialRefExercise extends IOApp {
             _      <- r.update(_ => resVal)
             _      <- s.release
           } yield ()
-        }
       }
     }
   }
