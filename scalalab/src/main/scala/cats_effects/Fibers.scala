@@ -55,7 +55,7 @@ object Fibers extends IOApp {
 
   def timeout2[A](io: IO[A], duration: FiniteDuration): IO[A] = for {
     ioFib <- io.start
-    fiber <- IO(IO.sleep(duration) >> ioFib.cancel).start
+    fiber <- (IO.sleep(duration) >> ioFib.cancel).start
     _     <- fiber.join
     resIO <- ioFib.join
     res   <- handleIO(resIO)

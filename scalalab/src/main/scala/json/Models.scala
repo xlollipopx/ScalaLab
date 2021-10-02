@@ -2,12 +2,18 @@ package json
 
 object Models {
 
-  final case class User(id: Int, name: String, username: String, email: String,
-                        address: Address, phone: String, website: String, company: Company)
+  final case class User(
+    id:       Int,
+    name:     String,
+    username: String,
+    email:    String,
+    address:  Address,
+    phone:    String,
+    website:  String,
+    company:  Company
+  )
 
-  final case class Address(street: String, suite: String, city: String,
-                           zipcode: String, geo: Geo)
-
+  final case class Address(street: String, suite: String, city: String, zipcode: String, geo: Geo)
 
   final case class Geo(lat: String, lng: String)
 

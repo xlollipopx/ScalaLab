@@ -11,7 +11,6 @@ import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.util.{Random, Try}
 import cats.effect.IO
-import cats.effect.unsafe.implicits.global
 
 object Effects extends IOApp {
 
