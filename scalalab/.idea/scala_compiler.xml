@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ScalaCompilerConfiguration">
-    <profile name="sbt 1" modules="scalalab" />
+    <profile name="sbt 1" modules="scalalab">
+      <option name="featureWarnings" value="true" />
+      <parameters>
+        <parameter value="-Ymacro-annotations" />
+        <parameter value="-Xfatal-warnings" />
+        <parameter value="-Xsource:3" />
+      </parameters>
+      <plugins>
+        <plugin path="C:\Users\USER\AppData\Local\Coursier\Cache\v1\https\repo1.maven.org\maven2\org\typelevel\kind-projector_2.13.6\0.13.0\kind-projector_2.13.6-0.13.0.jar" />
+      </plugins>
+    </profile>
   </component>
 </project>
