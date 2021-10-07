@@ -2,7 +2,7 @@ package tf.services
 
 import cats.effect.Sync
 import cats.effect.concurrent.Ref
-import cats.implicits.*
+import cats.implicits._
 import tf.domain.employee.{Employee, EmployeeDto}
 import tf.validation.{EmployeeValidationError, EmployeeValidator}
 

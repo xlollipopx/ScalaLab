@@ -1,11 +1,12 @@
 name := "scalalab"
 
 version := "0.1"
+
 scalacOptions ++= Seq(
+  "-deprecation",
   "-feature",
   "-Ymacro-annotations",
-  "-Xfatal-warnings",
-  "-Xsource:3"
+  "-Xfatal-warnings"
 )
 
 scalaVersion := "2.13.6"
