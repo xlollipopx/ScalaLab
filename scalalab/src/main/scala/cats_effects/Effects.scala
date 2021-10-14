@@ -51,5 +51,5 @@ object Effects extends IOApp {
   }
 
   // 5 - discard value inside an IO, just return Unit
-  def asUnit[A](ioa: IO[A]): IO[Unit] = IO()
+  // def asUnit[A](ioa: IO[A]) = IO()
 }

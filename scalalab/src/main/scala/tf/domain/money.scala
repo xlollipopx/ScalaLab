@@ -1,5 +1,7 @@
 package tf.domain
 
+import io.circe.generic.JsonCodec
+
 import java.util.Currency
 
 object money {

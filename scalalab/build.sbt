@@ -68,7 +68,9 @@ libraryDependencies ++= Seq(
   "io.circe"                 %% "circe-generic"                 % circeVersion,
   "io.circe"                 %% "circe-generic-extras"          % circeVersion,
   "io.circe"                 %% "circe-optics"                  % circeVersion,
-  "io.circe"                 %% "circe-parser"                  % circeVersion
+  "io.circe"                 %% "circe-parser"                  % circeVersion,
+  "org.http4s"               %% "http4s-json4s-native"          % http4sVersion,
+  "org.tpolecat"             %% "doobie-postgres"               % doobieVersion
 )
 
 libraryDependencies ++= Seq(

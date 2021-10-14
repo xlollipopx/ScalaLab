@@ -117,6 +117,7 @@ object Errors {
       Try(LocalDate.parse(rawDate, formatter)) match {
         case Success(date) if date.isAfter(LocalDate.now)  => rawDate.validNec
         case Success(date) if date.isBefore(LocalDate.now) => DateIsNotValid.invalidNec
+        case Success(_)                                    => DateIsNotValid.invalidNec
         case Failure(_)                                    => DateIsNotValid.invalidNec
       }
     }

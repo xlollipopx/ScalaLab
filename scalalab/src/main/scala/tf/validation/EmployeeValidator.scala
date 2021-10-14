@@ -3,6 +3,7 @@ package tf.validation
 import eu.timepit.refined.refineV
 import tf.domain.employee._
 import tf.domain.money.Money
+import tf.dto.employee.EmployeeDto
 import tf.validation.EmployeeValidationError._
 //import tf.validation.EmployeeValidator.EmployeeValidationError
 //import tf.validation.EmployeeValidator.EmployeeValidationError.{InvalidDate, InvalidMoneyFormat, InvalidName, InvalidPosition}
@@ -16,6 +17,10 @@ sealed trait EmployeeValidationError
 object EmployeeValidationError {
   final case object InvalidName extends EmployeeValidationError {
     override def toString: String = "Must contain alphabetic first name and last name!"
+  }
+
+  final case object EmployeeNotFound extends EmployeeValidationError {
+    override def toString: String = "Not found!"
   }
 
   final case object InvalidMoneyFormat extends EmployeeValidationError {

@@ -14,7 +14,6 @@ object TestTask {
     if (new java.io.File(path).exists) Right(path)
     else Left("Wrong path")
 
-
   sealed trait Cell {
     def getValue: List[(String, String)]
   }
@@ -28,29 +27,31 @@ object TestTask {
   case class Expression(cell: String) extends Cell {
     override def getValue: List[(String, String)] = {
       val list = "+" :: cell.split("[\\s=]+").toList.tail
-      list.foldLeft(List.empty[(String, String)] -> (None: Option[String])) {
-        case ((result, Some(key)), value) => (result :+ (key -> value)) -> None
-        case ((result, None), key) => result -> Some(key)
-      }._1
+      list
+        .foldLeft(List.empty[(String, String)] -> (None: Option[String])) {
+          case ((result, Some(key)), value) => (result :+ (key -> value)) -> None
+          case ((result, None), key)        => result          -> Some(key)
+        }
+        ._1
     }
   }
 
-  case class WordCell(cell: String) extends NotExpressionCell(cell) with Cell
+  final case class WordCell(cell: String) extends NotExpressionCell(cell) with Cell
 
-  case class ErrorCell(cell: String) extends NotExpressionCell(cell) with Cell
+  final case class ErrorCell(cell: String) extends NotExpressionCell(cell) with Cell
 
-  case class NumberCell(cell: String) extends NotExpressionCell(cell) with Cell
+  final case class NumberCell(cell: String) extends NotExpressionCell(cell) with Cell
 
-  case class EmptyCell(cell: String) extends NotExpressionCell(cell) with Cell
+  final case class EmptyCell(cell: String) extends NotExpressionCell(cell) with Cell
 
   object Cell {
     def apply(cell: String): Cell = {
       cell match {
         case cell if cell.matches("[+-]?\\d+") => NumberCell(cell)
-        case cell if cell.contains('\'') => WordCell(cell)
-        case cell if cell.contains('#') => ErrorCell(cell)
-        case cell if cell == "" => EmptyCell(cell)
-        case _ => Expression(cell)
+        case cell if cell.contains('\'')       => WordCell(cell)
+        case cell if cell.contains('#')        => ErrorCell(cell)
+        case cell if cell == ""                => EmptyCell(cell)
+        case _                                 => Expression(cell)
       }
     }
   }
@@ -62,12 +63,16 @@ object TestTask {
   final class SpreadsheetProcessor extends Processor {
 
     def process(spreadsheet: Spreadsheet): Spreadsheet = {
-      val res = spreadsheet.spreadsheet.map(x => x.map {
-        case cell :EmptyCell => cell
-        case cell :WordCell => cell
-        case cell :NumberCell => cell
-        case cell => processCell(cell, spreadsheet)
-      })
+      val res = spreadsheet.spreadsheet.map(x =>
+        x.map {
+          case cell: NumberCell => cell
+          case cell if cell.isInstanceOf[WordCell]  => cell
+          case cell if cell.isInstanceOf[ErrorCell] => cell
+          case cell if cell.isInstanceOf[EmptyCell] => cell
+
+          case cell => processCell(cell, spreadsheet)
+        }
+      )
       Spreadsheet(res)
     }
 
@@ -75,14 +80,22 @@ object TestTask {
       def process(cell: Cell, matrix: Spreadsheet): Cell = {
 
         cell match {
-          case cell :EmptyCell => ErrorCell("#not all numbers")
-          case cell :WordCell => ErrorCell("#not all numbers")
+          case cell: EmptyCell => ErrorCell("#not all numbers")
           case cell if cell.isInstanceOf[NumberCell] => cell
-          case _ => Cell(cell.getValue.foldLeft(0){case (acc, (operation, x)) =>
-            if (isAllDigits(x)) updateExpression(acc, operation, x)
-            else updateExpression(acc, operation,
-              process(matrix.spreadsheet(getCellIndex(x)._1)(getCellIndex(x)._2),
-                matrix).getValue.head._1)}.toString)
+          case _ =>
+            Cell(
+              cell.getValue
+                .foldLeft(0) { case (acc, (operation, x)) =>
+                  if (isAllDigits(x)) updateExpression(acc, operation, x)
+                  else
+                    updateExpression(
+                      acc,
+                      operation,
+                      process(matrix.spreadsheet(getCellIndex(x)._1)(getCellIndex(x)._2), matrix).getValue.head._1
+                    )
+                }
+                .toString
+            )
         }
       }
       process(cell, matrix)
@@ -109,13 +122,15 @@ object TestTask {
     def parse(): Either[ErrorMessage, T]
   }
 
-  trait SpreadsheetParser extends Parser[Spreadsheet] {
-  }
+  trait SpreadsheetParser extends Parser[Spreadsheet] {}
 
   class LocalSpreadsheetParser(path: String) extends SpreadsheetParser {
     override def parse(): Either[ErrorMessage, Spreadsheet] =
       Try(Source.fromFile(path).getLines()) match {
-        case Success(lines) => Right(Spreadsheet(lines.drop(1).map(line => line.split("\\s{4}")).toList.map(x => x.toList.map(y => Cell(y)))))
+        case Success(lines) =>
+          Right(
+            Spreadsheet(lines.drop(1).map(line => line.split("\\s{4}")).toList.map(x => x.toList.map(y => Cell(y))))
+          )
         case Failure(e) => Left("Could not read")
       }
   }
@@ -146,7 +161,7 @@ object TestTask {
   }
 
   def main(args: Array[String]): Unit = {
-    val readPath = args(0)
+    val readPath  = args(0)
     val writePath = args(1)
 
     for {
@@ -158,11 +173,10 @@ object TestTask {
 
       spreadsheetProcessor = new SpreadsheetProcessor
       processedSpreadsheet = spreadsheetProcessor.process(parsedSpreadsheet)
-      spreadsheetWriter = new FileSpreadsheetWriter
-      _ <- spreadsheetWriter.write(validWritePath, processedSpreadsheet)
+      spreadsheetWriter    = new FileSpreadsheetWriter
+      _                   <- spreadsheetWriter.write(validWritePath, processedSpreadsheet)
     } yield (print(parsedSpreadsheet))
 
   }
-
 
 }

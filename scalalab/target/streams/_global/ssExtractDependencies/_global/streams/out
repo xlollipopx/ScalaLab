@@ -1,14 +1,37 @@
-[error] sbt.librarymanagement.ResolveException: Error downloading org.scalatest:scalatest_2.13:3.0.1
-[error]   Not found
-[error]   Not found
-[error]   not found: C:\Users\USER\.ivy2\localorg.scalatest\scalatest_2.13\3.0.1\ivys\ivy.xml
-[error]   not found: https://repo1.maven.org/maven2/org/scalatest/scalatest_2.13/3.0.1/scalatest_2.13-3.0.1.pom
-[error] 	at lmcoursier.CoursierDependencyResolution.unresolvedWarningOrThrow(CoursierDependencyResolution.scala:258)
-[error] 	at lmcoursier.CoursierDependencyResolution.$anonfun$update$38(CoursierDependencyResolution.scala:227)
-[error] 	at scala.util.Either$LeftProjection.map(Either.scala:573)
-[error] 	at lmcoursier.CoursierDependencyResolution.update(CoursierDependencyResolution.scala:227)
-[error] 	at sbt.librarymanagement.DependencyResolution.update(DependencyResolution.scala:60)
-[error] 	at sbt.internal.LibraryManagement$.resolve$1(LibraryManagement.scala:59)
+[error] java.lang.RuntimeException: found version conflict(s) in library dependencies; some are suspected to be binary incompatible:
+[error] 
+[error] 	* co.fs2:fs2-core_2.13:3.0.3 (early-semver) is selected over {2.5.3, 2.4.2, 2.5.3, 2.5.3, 2.2.2}
+[error] 	    +- co.fs2:fs2-io_2.13:3.0.3                           (depends on 3.0.3)
+[error] 	    +- org.tpolecat:doobie-free_2.13:1.0.0-RC1            (depends on 3.0.3)
+[error] 	    +- org.http4s:jawn-fs2_2.13:1.0.0                     (depends on 2.2.2)
+[error] 	    +- org.http4s:http4s-jdk-http-client_2.13:0.3.6       (depends on 2.5.3)
+[error] 	    +- org.http4s:http4s-core_2.13:0.21.20                (depends on 2.5.3)
+[error] 	    +- io.chrisdavenport:epimetheus-http4s_2.13:0.4.2     (depends on 2.4.2)
+[error] 	    +- co.fs2:fs2-reactive-streams_2.13:2.5.3             (depends on 2.5.3)
+[error] 
+[error] 	* org.typelevel:cats-effect_2.13:3.1.1 (early-semver) is selected over {2.2.0, 2.1.4, 2.1.1, 2.1.3, 2.0.0, 2.0.0, 2.3.3, 2.4.0}
+[error] 	    +- default:scalalab_2.13:0.1                          (depends on 3.1.1)
+[error] 	    +- com.comcast:ip4s-core_2.13:3.0.3                   (depends on 3.1.1)
+[error] 	    +- org.tpolecat:doobie-free_2.13:1.0.0-RC1            (depends on 3.1.1)
+[error] 	    +- co.fs2:fs2-core_2.13:3.0.3                         (depends on 3.1.1)
+[error] 	    +- org.http4s:http4s-jdk-http-client_2.13:0.3.6       (depends on 2.4.0)
+[error] 	    +- org.http4s:http4s-core_2.13:0.21.20                (depends on 2.3.3)
+[error] 	    +- io.chrisdavenport:vault_2.13:2.0.0                 (depends on 2.0.0)
+[error] 	    +- io.chrisdavenport:unique_2.13:2.0.0                (depends on 2.0.0)
+[error] 	    +- io.chrisdavenport:log4cats-slf4j_2.13:1.1.1        (depends on 2.1.3)
+[error] 	    +- io.chrisdavenport:epimetheus_2.13:0.4.0            (depends on 2.1.1)
+[error] 	    +- io.chrisdavenport:epimetheus-http4s_2.13:0.4.2     (depends on 2.1.4)
+[error] 	    +- org.typelevel:cats-effect_2.13:2.2.0               (depends on 2.2.0)
+[error] 
+[error] 	* co.fs2:fs2-io_2.13:3.0.3 (early-semver) is selected over {2.4.2, 2.5.3}
+[error] 	    +- org.tpolecat:doobie-postgres_2.13:1.0.0-RC1        (depends on 3.0.3)
+[error] 	    +- org.http4s:http4s-core_2.13:0.21.20                (depends on 2.5.3)
+[error] 	    +- io.chrisdavenport:epimetheus-http4s_2.13:0.4.2     (depends on 2.4.2)
+[error] 
+[error] 
+[error] this can be overridden using libraryDependencySchemes or evictionErrorLevel
+[error] 	at scala.sys.package$.error(package.scala:30)
+[error] 	at sbt.internal.LibraryManagement$.resolve$1(LibraryManagement.scala:89)
 [error] 	at sbt.internal.LibraryManagement$.$anonfun$cachedUpdate$12(LibraryManagement.scala:133)
 [error] 	at sbt.util.Tracked$.$anonfun$lastOutput$1(Tracked.scala:73)
 [error] 	at sbt.internal.LibraryManagement$.$anonfun$cachedUpdate$20(LibraryManagement.scala:146)
@@ -33,8 +56,35 @@
 [error] 	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
 [error] 	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
 [error] 	at java.lang.Thread.run(Thread.java:748)
-[error] (ssExtractDependencies) sbt.librarymanagement.ResolveException: Error downloading org.scalatest:scalatest_2.13:3.0.1
-[error]   Not found
-[error]   Not found
-[error]   not found: C:\Users\USER\.ivy2\localorg.scalatest\scalatest_2.13\3.0.1\ivys\ivy.xml
-[error]   not found: https://repo1.maven.org/maven2/org/scalatest/scalatest_2.13/3.0.1/scalatest_2.13-3.0.1.pom
+[error] (ssExtractDependencies) found version conflict(s) in library dependencies; some are suspected to be binary incompatible:
+[error] 
+[error] 	* co.fs2:fs2-core_2.13:3.0.3 (early-semver) is selected over {2.5.3, 2.4.2, 2.5.3, 2.5.3, 2.2.2}
+[error] 	    +- co.fs2:fs2-io_2.13:3.0.3                           (depends on 3.0.3)
+[error] 	    +- org.tpolecat:doobie-free_2.13:1.0.0-RC1            (depends on 3.0.3)
+[error] 	    +- org.http4s:jawn-fs2_2.13:1.0.0                     (depends on 2.2.2)
+[error] 	    +- org.http4s:http4s-jdk-http-client_2.13:0.3.6       (depends on 2.5.3)
+[error] 	    +- org.http4s:http4s-core_2.13:0.21.20                (depends on 2.5.3)
+[error] 	    +- io.chrisdavenport:epimetheus-http4s_2.13:0.4.2     (depends on 2.4.2)
+[error] 	    +- co.fs2:fs2-reactive-streams_2.13:2.5.3             (depends on 2.5.3)
+[error] 
+[error] 	* org.typelevel:cats-effect_2.13:3.1.1 (early-semver) is selected over {2.2.0, 2.1.4, 2.1.1, 2.1.3, 2.0.0, 2.0.0, 2.3.3, 2.4.0}
+[error] 	    +- default:scalalab_2.13:0.1                          (depends on 3.1.1)
+[error] 	    +- com.comcast:ip4s-core_2.13:3.0.3                   (depends on 3.1.1)
+[error] 	    +- org.tpolecat:doobie-free_2.13:1.0.0-RC1            (depends on 3.1.1)
+[error] 	    +- co.fs2:fs2-core_2.13:3.0.3                         (depends on 3.1.1)
+[error] 	    +- org.http4s:http4s-jdk-http-client_2.13:0.3.6       (depends on 2.4.0)
+[error] 	    +- org.http4s:http4s-core_2.13:0.21.20                (depends on 2.3.3)
+[error] 	    +- io.chrisdavenport:vault_2.13:2.0.0                 (depends on 2.0.0)
+[error] 	    +- io.chrisdavenport:unique_2.13:2.0.0                (depends on 2.0.0)
+[error] 	    +- io.chrisdavenport:log4cats-slf4j_2.13:1.1.1        (depends on 2.1.3)
+[error] 	    +- io.chrisdavenport:epimetheus_2.13:0.4.0            (depends on 2.1.1)
+[error] 	    +- io.chrisdavenport:epimetheus-http4s_2.13:0.4.2     (depends on 2.1.4)
+[error] 	    +- org.typelevel:cats-effect_2.13:2.2.0               (depends on 2.2.0)
+[error] 
+[error] 	* co.fs2:fs2-io_2.13:3.0.3 (early-semver) is selected over {2.4.2, 2.5.3}
+[error] 	    +- org.tpolecat:doobie-postgres_2.13:1.0.0-RC1        (depends on 3.0.3)
+[error] 	    +- org.http4s:http4s-core_2.13:0.21.20                (depends on 2.5.3)
+[error] 	    +- io.chrisdavenport:epimetheus-http4s_2.13:0.4.2     (depends on 2.4.2)
+[error] 
+[error] 
+[error] this can be overridden using libraryDependencySchemes or evictionErrorLevel
