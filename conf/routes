@@ -1,0 +1,18 @@
+
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# An example controller showing a sample home page
+GET     /                           controllers.HomeController.index()
+
+# An example controller showing how to write asynchronous code
+GET     /message                    controllers.AsyncController.message
+
+GET     /bands                           controllers.HomeController.bands()
+GET     /guitars                           controllers.HomeController.guitars()
+GET     /cars                           controllers.HomeController.cars()
+
+
+
+
