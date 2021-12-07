@@ -17,4 +17,12 @@ libraryDependencies ++= Seq( jdbc , ehcache , ws , specs2 % Test , guice,
   "org.apache.spark" %% "spark-core" % sparkVersion,
   "org.apache.spark" %% "spark-sql" % sparkVersion,
   "org.postgresql" % "postgresql" % postgresVersion)
-      
+
+val circeVersion = "0.14.1"
+
+libraryDependencies ++= Seq(
+  "io.circe" %% "circe-core",
+  "io.circe" %% "circe-generic",
+  "io.circe" %% "circe-parser"
+).map(_ % circeVersion)
+libraryDependencies += "com.dripower" %% "play-circe" % "2612.0"

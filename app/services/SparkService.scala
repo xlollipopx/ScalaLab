@@ -1,14 +1,21 @@
 package services
 
 import conf.dbConf._
-import org.apache.spark.sql.{DataFrame, Dataset, Encoder, SparkSession}
+import org.apache.spark.sql.{DataFrame, Dataset, Encoder, SaveMode, SparkSession}
+import services.Model.{Band, Car}
+
+import java.util.Properties
+import scala.io.Source
 
 object SparkService   {
 
-  val spark = SparkSession.builder()
+  lazy val spark = SparkSession.builder()
     .appName("Managing Nulls")
     .config("spark.master", "local")
     .getOrCreate()
+
+ val props = new PropertiesResolver
+ val properties = props.getProperties()
 
   def readDfFromJson(filename: String) = spark.read
     .option("inferSchema", "true")
@@ -21,36 +28,30 @@ object SparkService   {
     ds.rdd.collect().toList
   }
 
-
-
   def writeToDb(df: DataFrame, name: String)  = {
-    df.write
-      .format("jdbc")
-      .option("driver", driver)
-      .option("url", url)
-      .option("user", user)
-      .option("password", password)
-      .option("dbtable", s"public.$name")
-      .save()
+    df.write.mode(SaveMode.Overwrite).jdbc(properties.getProperty("url"), name, properties)
   }
 
-
-  def readFromDb[A: Encoder](name: String): List[A] = {
-    val df = spark.read
-      .format("jdbc")
-      .option("driver", driver)
-      .option("url", url)
-      .option("user", user)
-      .option("password", password)
-      .option("dbtable", s"public.$name")
-      .load()
-
+  def readEntityFromDb[A: Encoder](name: String): List[A] = {
+    val df = spark.read.jdbc(properties.getProperty("url"), s"public.$name", properties)
     val ds = df.as[A]
     ds.rdd.collect().toList
   }
+  def readDFFromDb(name: String): DataFrame = {
+    spark.read.jdbc(properties.getProperty("url"), s"public.$name", properties)
+  }
+
+}
 
 
-
-
-
+class PropertiesResolver {
+  def getProperties() = {
+    val properties         = new Properties
+    val currentThread      = Thread.currentThread
+    val contextClassLoader = currentThread.getContextClassLoader
+    val propertiesStream   = contextClassLoader.getResourceAsStream("db.properties")
+      properties.load(propertiesStream)
+      propertiesStream.close()
+    properties
+  }
 }
