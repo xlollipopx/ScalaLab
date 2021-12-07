@@ -20,10 +20,7 @@ import play.api.libs.json.{JsError, JsPath, Writes}
 
 import java.nio.file.Paths
 import scala.util.{Failure, Success, Try}
-/**
- * This controller creates an `Action` to handle HTTP requests to the
- * application's home page.
- */
+
 @Singleton
 class HomeController @Inject()(cc: ControllerComponents) extends AbstractController(cc)  with Circe {
 
